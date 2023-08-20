@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head> 
+    <title>Sistema de Compra e Venda{{titulo}}</title>
+</head>
+
+<body>
+    <h4>Cadastro de {{titulo}}</h4>
+    <form action="/venda/criar" method="post">
+        <p><label for="nome">Produto</label>
+        <input type="text" id="nome" name="nome"></p>
+
+        <p><label for="qtd">Quantidade</label>
+        <input type="text" id="qtd" name="qtd"></p>
+
+        <p><label for="preco">Preço Unitário</label>
+        <input type="text" id="preco" name="preco"></p>
+        
+        <p><label for="total">Total</label>
+        <input type="text" id="total" name="total"></p>
+
+        <p><label for="total">Data da Venda</label>
+            <input type="date" id="data" name="data"></p>
+
+        <p><label for="usu">Usuario</label>
+        <input type="text" id="uso" name="uso"></p>
+
+        <p><input type="submit" value="Cadastrar"></p>
+    </form>
+
+    <h4>Lista de {{titulo}}</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário</th>
+                <th>Total</th>
+                <th>Data da Venda</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venda in vendas %}
+                <tr>
+                    <td>{{ venda.nome}}</td>
+                    <td>{{ venda.quant }}</td>
+                    <td>{{ venda.preco }}</td>
+                    <td>{{ venda.total }}</td>
+                    <td>{{ venda.data.strftime('%d/%m/%Y') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

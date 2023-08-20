@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head> 
+    <title>Sistema de Compra e Venda{{titulo}}</title>
+</head>
+
+<body>
+    <h4>Cadastro de {{titulo}}</h4>
+    <form action="/compra/criar" method="post">
+        <p><label for="nome">Produto</label>
+        <input type="text" id="nome" name="nome"></p>
+
+        <p><label for="desc">Desc</label>
+        <textarea rows="4" cols="50" id="desc" name="desc"></textarea></p>       
+
+        <p><label for="qtd">Quantidade</label>
+        <input type="text" id="qtd" name="qtd"></p>
+
+        <p><label for="preco">Preco</label>
+        <input type="text" id="preco" name="preco"></p>
+        
+        <p><label for="cat">Vendedor</label>
+        <input type="text" id="vend" name="vend"></p>
+
+        <p><label for="total">Total</label>
+            <input type="text" id="total" name="total"></p>
+
+        <p><label for="usu">Usuario</label>
+        <input type="text" id="uso" name="uso"></p>
+
+        <p><input type="submit" value="Cadastrar"></p>
+    </form>
+
+    <h4>Lista de {{titulo}}</h4>
+        <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Quantidade</th>
+            <th>Preço</th>
+            <th>Vendedor</th>
+            <th>Total</th>
+        </tr>
+        {% for compra in compras %}
+        <tr>
+            <td>{{ compra.nome}}</td>
+            <td>{{ compra.desc }}</td>
+            <td>{{ compra.qtd }}</td>
+            <td>{{ compra.preco }}</td>
+            <td>{{ compra.ven }}</td>
+            <td>{{ compra.total }}</td>
+            
+            <td>
+                <a href="{{ url_for('compra', anuncio_id=anuncio.id) }}">Comprar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
