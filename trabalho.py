@@ -5,7 +5,7 @@ import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://ingrid:1234@localhost:3306/trabalho'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'rel'  # Substitua pela sua chave secreta real
+app.secret_key = 'rel'  
 
 db = SQLAlchemy(app)
 
@@ -76,9 +76,9 @@ class Compra(db.Model):
     desc = db.Column(db.String(255))
     qtd = db.Column(db.Integer)
     preco = db.Column(db.Float)
-    ven_id = db.Column(db.Integer)  # ID da Venda
-    total_id = db.Column(db.Float)  # Total
-    usu_id = db.Column(db.Integer)  # ID do Usuário
+    ven_id = db.Column(db.Integer)  
+    total_id = db.Column(db.Float)  
+    usu_id = db.Column(db.Integer)  
     
     def __init__(self, nome, desc, qtd, preco, ven_id, total_id, usu_id):
         self.nome = nome
@@ -198,8 +198,8 @@ def comprar_anuncio(id):
                     print(f"Erro ao converter valores para float: {e}")
                     return redirect(url_for('index'))
 
-                ven_id = f"Venda-{id}"  # Substitua isso pela lógica real para gerar um identificador único
-                usu_id = 1  # Substitua pelo ID do usuário real
+                ven_id = f"Venda-{id}"  
+                usu_id = 1  
 
                 compra_info = {
                     'nome': nome,
@@ -214,7 +214,6 @@ def comprar_anuncio(id):
                 db.session.add(Compra(**compra_info))
                 db.session.commit()
 
-                # Atualiza a lista de anúncios antes de redirecionar
                 anuncios = Anuncio.query.all()
                 return render_template('lista_anuncios.html', anuncios=anuncios, compra_info=compra_info)
 
@@ -271,7 +270,6 @@ def criarvenda():
 
 @app.route("/rel_compras")
 def rel_compras():
-    # Consulta todas as compras na tabela rel_compras
     compras = Compra.query.all()
 
     return render_template('rel_compras.html', compras=compras)
