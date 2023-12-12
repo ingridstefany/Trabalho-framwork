@@ -1,18 +1,14 @@
-from flask import Flask, make_response
-from markupsafe import escape
-from flask import render_template
-from flask import request
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from flask import url_for
-from flask import redirect
-
-
+import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://ingrid:1234@localhost:3306/trabalho'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'rel'  # Substitua pela sua chave secreta real
 
 db = SQLAlchemy(app)
+
 
 class Usuario(db.Model):
     __tablename__ = "usuario"
@@ -34,7 +30,7 @@ class Categoria(db.Model):
     nome = db.Column('cat_nome', db.String(256))
     desc = db.Column('cat_desc', db.String(256))
 
-    def __init__ (self, nome, desc):
+    def __init__(self, nome, desc):
         self.nome = nome
         self.desc = desc
 
@@ -45,8 +41,8 @@ class Anuncio(db.Model):
     desc = db.Column('anu_desc', db.String(256))
     qtd = db.Column('anu_qtd', db.Integer)
     preco = db.Column('anu_preco', db.Float)
-    cat_id = db.Column('cat_id',db.Integer, db.ForeignKey("categoria.cat_id"))
-    usu_id = db.Column('usu_id',db.Integer, db.ForeignKey("usuario.usu_id"))
+    cat_id = db.Column('cat_id', db.Integer, db.ForeignKey("categoria.cat_id"))
+    usu_id = db.Column('usu_id', db.Integer, db.ForeignKey("usuario.usu_id"))
 
     def __init__(self, nome, desc, qtd, preco, cat_id, usu_id):
         self.nome = nome
@@ -56,8 +52,6 @@ class Anuncio(db.Model):
         self.cat_id = cat_id
         self.usu_id = usu_id
 
-
-
 class Venda(db.Model):
     __tablename__ = "ven"
     id = db.Column('ven_id', db.Integer, primary_key=True)
@@ -65,8 +59,8 @@ class Venda(db.Model):
     qtd = db.Column('ven_qtd', db.Integer)
     preco = db.Column('ven_preco', db.Float)
     total = db.Column('ven_total', db.Float)
-    data = db.Column('ven_data', db.date)
-    usu_id = db.Column('usu_id',db.Integer, db.ForeignKey("usuario.usu_id"))
+    data = db.Column('ven_data', db.Date)
+    usu_id = db.Column('usu_id', db.Integer, db.ForeignKey("usuario.usu_id"))
 
     def __init__(self, nome, qtd, preco, total, data, usu_id):
         self.nome = nome
@@ -76,28 +70,32 @@ class Venda(db.Model):
         self.data = data
         self.usu_id = usu_id
 
-    class Compra(db.Model):
-    __tablename__ = "compra"
-    id = db.Column('compra_id', db.Integer, primary_key=True)
-    nome = db.Column('compra_nome', db.String(256))
-    desc = db.Column('compra_desc', db.String(256))
-    qtd = db.Column('compra_qtd', db.Integer)
-    preco = db.Column('compra_preco', db.Float)
-    ven = db.Column('compra_ven', db.string(256))
-    total = db.Column('compra_total', db.Float)
-    usu_id = db.Column('usu_id',db.Integer, db.ForeignKey("usuario.usu_id"))
-
-    def __init__(self, nome, desc, qtd, preco, ven, total, usu_id):
+class Compra(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255))
+    desc = db.Column(db.String(255))
+    qtd = db.Column(db.Integer)
+    preco = db.Column(db.Float)
+    ven_id = db.Column(db.Integer)  # ID da Venda
+    total_id = db.Column(db.Float)  # Total
+    usu_id = db.Column(db.Integer)  # ID do Usuário
+    
+    def __init__(self, nome, desc, qtd, preco, ven_id, total_id, usu_id):
         self.nome = nome
         self.desc = desc
         self.qtd = qtd
         self.preco = preco
-        self.ven_id = ven
-        self.total_id = total
+        self.ven_id = ven_id  
+        self.total_id = total_id  
         self.usu_id = usu_id
 
-
-
+def buscar_anuncio_por_id(id):
+    try:
+        anuncio = Anuncio.query.get(id)
+        return anuncio
+    except Exception as e:
+        print(f"Erro ao buscar anúncio por ID {id}: {str(e)}")
+        return None
 
 
 @app.errorhandler(404)
@@ -110,11 +108,17 @@ def index():
 
 @app.route("/cad/usuario")
 def usuario():
-    return render_template('usuario.html', usuarios = Usuario.query.all(), titulo="Usuario")
+    usuarios = Usuario.query.all()
+    return render_template('usuario.html', usuarios=usuarios, titulo="Usuario")
 
-@app.route("/usuario/criar")
+@app.route("/usuario/criar", methods=['POST'])
 def criarusuario():
-    usuario = Usuario(request.form.get('user'), request.form.get('email'),request.form.get('passwd'),request.form.get('end'))
+    nome = request.form.get('user')
+    email = request.form.get('email')
+    senha = request.form.get('passwd')
+    end = request.form.get('end')
+    
+    usuario = Usuario(nome=nome, email=email, senha=senha, end=end)
     db.session.add(usuario)
     db.session.commit()
     return redirect(url_for('usuario'))
@@ -124,7 +128,7 @@ def buscarusuario(id):
     usuario = Usuario.query.get(id)
     return usuario.nome
 
-@app.route("/usuario/editar/<int:id>")
+@app.route("/usuario/editar/<int:id>", methods=['GET', 'POST'])
 def editarusuario(id):
     usuario = Usuario.query.get(id)
     if request.method == 'POST':
@@ -132,73 +136,156 @@ def editarusuario(id):
         usuario.email = request.form.get('email')
         usuario.senha = request.form.get('passwd')
         usuario.end = request.form.get('end')
-        db.session.add(usuario)
         db.session.commit()
         return redirect(url_for('usuario'))
 
-    return render_template('eusuario.html', usuario = usuario, titulo="Usuario")
+    return render_template('eusuario.html', usuario=usuario, titulo="Usuario")
 
 @app.route("/usuario/deletar/<int:id>")
 def deletarusuario(id):
     usuario = Usuario.query.get(id)
     db.session.delete(usuario)
     db.session.commit()
-    return redirect(url_for('usuario'))     
+    return redirect(url_for('usuario'))
 
 @app.route("/cad/anuncio")
 def anuncio():
-    return render_template('anuncio.html', anuncios = Anuncio.query.all(), categorias = Categoria.query.all(), titulo="Anuncio")
+    anuncios = Anuncio.query.all()
+    categorias = Categoria.query.all()
+    usuarios = Usuario.query.all()
+    return render_template('anuncio.html', anuncios=anuncios, categorias=categorias, usuarios=usuarios, titulo="Anuncio")
 
-@app.route("/anuncio/criar")
+
+
+
+@app.route("/anuncio/criar", methods=['POST'])
 def criaranuncio():
-    anuncio = Anuncio(request.form.get('nome'), request.form.get('desc'),request.form.get('qtd'),request.form.get('preco'),request.form.get('cat'),request.form.get('uso'))
-    db.session.add(anuncio)
+    nome = request.form.get('nome')
+    desc = request.form.get('desc')
+    qtd = request.form.get('qtd')
+    preco = request.form.get('preco')
+    cat_id = request.form.get('cat')
+    usu_id = request.form.get('uso')
+    
+    anuncio = Anuncio(nome=nome, desc=desc, qtd=qtd, preco=preco, cat_id=cat_id, usu_id=usu_id)
+    db.session.add(anuncio
+
+)
     db.session.commit()
     return redirect(url_for('anuncio'))
+
+@app.route("/anuncios")
+def listar_anuncios():
+    anuncios = Anuncio.query.all()
+    return render_template('lista_anuncios.html', anuncios=anuncios)
+
+@app.route("/comprar/<int:id>", methods=['GET', 'POST'])
+def comprar_anuncio(id):
+    if request.method == 'POST':
+        anuncio = buscar_anuncio_por_id(id)
+        if anuncio:
+            nome = anuncio.nome
+            desc = anuncio.desc
+            qtd = request.form.get('quantity')
+            preco = anuncio.preco
+
+            # Verifica se qtd e preco são valores válidos
+            if qtd is not None and preco is not None:
+                try:
+                    qtd = float(qtd)
+                    preco = float(preco)
+                    total_id = qtd * preco
+                except ValueError as e:
+                    print(f"Erro ao converter valores para float: {e}")
+                    return redirect(url_for('index'))
+
+                ven_id = f"Venda-{id}"  # Substitua isso pela lógica real para gerar um identificador único
+                usu_id = 1  # Substitua pelo ID do usuário real
+
+                compra_info = {
+                    'nome': nome,
+                    'desc': desc,
+                    'qtd': qtd,
+                    'preco': preco,
+                    'ven_id': ven_id,
+                    'total_id': total_id,
+                    'usu_id': usu_id
+                }
+
+                db.session.add(Compra(**compra_info))
+                db.session.commit()
+
+                # Atualiza a lista de anúncios antes de redirecionar
+                anuncios = Anuncio.query.all()
+                return render_template('lista_anuncios.html', anuncios=anuncios, compra_info=compra_info)
+
+    return redirect(url_for('index'))
+
+
+@app.route("/compra_sucesso")
+def compra_sucesso():
+    compra_info = session.pop('compra_info', None)
+    if compra_info:
+        return render_template('compra_sucesso.html', **compra_info)
+    else:
+        return "Informações de compra não encontradas"
+
 
 @app.route("/anuncios/compra")
 def compra():
     print("anuncio comprado")
     return ""
 
-
 @app.route("/config/categoria")
 def categoria():
-    return render_template('categoria.html', categorias = Categoria.query.all(), titulo='Categoria')
+    categorias = Categoria.query.all()
+    return render_template('categoria.html', categorias=categorias, titulo='Categoria')
 
-@app.route("/categoria/criar")
+@app.route("/categoria/criar", methods=['POST'])
 def criarcategoria():
-    categoria = Categoria(request.form.get('nome'), request.form.get('desc'))
+    nome = request.form.get('nome')
+    desc = request.form.get('desc')
+    
+    categoria = Categoria(nome=nome, desc=desc)
     db.session.add(categoria)
     db.session.commit()
     return redirect(url_for('categoria'))
 
 @app.route("/relatorios/vendas")
 def relVendas():
-    return render_template('relvendas.html', vendas = Venda.query.all(), categorias = Categoria.query.all(), titulo="venda")
+    vendas = Venda.query.all()
+    return render_template('rel_vendas.html', vendas=vendas, titulo="Venda")
 
-@app.route("/vendas/criar")
+@app.route("/vendas/criar", methods=['POST'])
 def criarvenda():
-    anuncio = Anuncio(request.form.get('nome'), request.form.get('desc'),request.form.get('qtd'),request.form.get('preco'),request.form.get('total'),request.form.get('data'),request.form.get('uso'))
+    nome = request.form.get('nome')
+    qtd = request.form.get('qtd')
+    preco = request.form.get('preco')
+    total = request.form.get('total')
+    data = request.form.get('data')
+    usu_id = request.form.get('uso')
+    
+    venda = Venda(nome=nome, qtd=qtd, preco=preco, total=total, data=data, usu_id=usu_id)
     db.session.add(venda)
     db.session.commit()
-    return redirect(url_for('venda'))
+    return redirect(url_for('relVendas'))
 
-@app.route("/relatorios/compras")
-def relCompras():
-    return render_template('relCompras.html', compras = Venda.query.all(), categorias = Categoria.query.all(), titulo="compra")
+@app.route("/rel_compras")
+def rel_compras():
+    # Consulta todas as compras na tabela rel_compras
+    compras = Compra.query.all()
 
-@app.route("/compras/criar")
-def criarcompra():
-    anuncio = Compra(request.form.get('nome'), request.form.get('desc'),request.form.get('qtd'),request.form.get('preco'),request.form.get('ven'),request.form.get('total'),request.form.get('uso'))
-    db.session.add(compra)
-    db.session.commit()
-    return redirect(url_for('compra'))
+    return render_template('rel_compras.html', compras=compras)
 
-if __name__ == '__main__':
-    print("trabalho")
-    db.create_all()
-    app.run()
+@app.route('/detalhesCompra/<int:id>')
+def detalhesCompra(id):
+    anuncio = buscar_anuncio_por_id(id)
 
-    db.create_all()
-    app.run()
+    if anuncio:
+        return render_template('detalhes_compra.html', anuncio=anuncio)
+    else:
+        return "Anúncio não encontrado"
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
