@@ -76,8 +76,6 @@
         <p>Quantidade: {{ anuncio.qtd }}</p>
         <p>Preço: R$ {{ anuncio.preco }}</p>
 
-        <!-- Button to navigate to Relatório de Compras -->
-<!-- Button to navigate to Relatório de Compras with parameters -->
 <a class="compras-btn" href="{{ url_for('rel_compras', nome=anuncio.nome, desc=anuncio.desc, qtd=anuncio.qtd, preco=anuncio.preco) }}">Ver Relatório de Compras</a>
     </div>
 </body>
