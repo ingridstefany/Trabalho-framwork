@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Anúncios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h4 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .quantity-input {
+            width: 50px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .comprar-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #36a7c4;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .comprar-btn:hover {
+            background-color: #36a7c4;
+        }
+
+        .unit-price, .total-price {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h4>Lista de Anúncios</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário</th>
+                    <th>Total</th>
+                    <th>Comprar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for anuncio in anuncios %}
+                    <tr data-anuncio-id="{{ anuncio.id }}">
+                        <td>{{ anuncio.nome }}</td>
+                        <td>{{ anuncio.desc }}</td>
+                        <td>
+                            <input type="number" class="quantity-input" name="quantity" value="1" min="1" data-unit-price="{{ anuncio.preco }}">
+                        </td>
+                        <td class="unit-price">{{ anuncio.preco }}</td>
+                        <td class="total-price">{{ anuncio.preco }}</td>
+                        <td>
+                            <a class="comprar-btn" onclick="processarCompra({{ anuncio.id }})">Comprar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ... Seu código HTML anterior ... -->
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".quantity-input").on("input", function() {
+                var quantity = $(this).val();
+                var unitPrice = $(this).data("unit-price");
+                var totalPrice = (quantity * unitPrice).toFixed(2);
+
+                $(this).closest("tr").find(".unit-price").text(unitPrice);
+                $(this).closest("tr").find(".total-price").text(totalPrice);
+            });
+        });
+
+        function processarCompra(anuncioId) {
+            var quantity = $("tr:has(a.comprar-btn)[data-anuncio-id=" + anuncioId + "]").find("input.quantity-input").val();
+            
+            var data = {
+                anuncioId: anuncioId,
+                quantity: quantity
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/comprar/" + anuncioId,
+                data: data,
+                success: function(response) {
+                    window.location.href = "/rel_compras";
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
