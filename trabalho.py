@@ -189,7 +189,6 @@ def comprar_anuncio(id):
             qtd = request.form.get('quantity')
             preco = anuncio.preco
 
-            # Verifica se qtd e preco são valores válidos
             if qtd is not None and preco is not None:
                 try:
                     qtd = float(qtd)
