@@ -1,59 +1,94 @@
-<!doctype html>
-<html>
-<head> 
-    <title>Sistema de Compra e Venda{{titulo}}</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Compras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            padding: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #76cccf;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
 </head>
-
 <body>
-    <h4>Cadastro de {{titulo}}</h4>
-    <form action="/compra/criar" method="post">
-        <p><label for="nome">Produto</label>
-        <input type="text" id="nome" name="nome"></p>
-
-        <p><label for="desc">Desc</label>
-        <textarea rows="4" cols="50" id="desc" name="desc"></textarea></p>       
-
-        <p><label for="qtd">Quantidade</label>
-        <input type="text" id="qtd" name="qtd"></p>
-
-        <p><label for="preco">Preco</label>
-        <input type="text" id="preco" name="preco"></p>
-        
-        <p><label for="cat">Vendedor</label>
-        <input type="text" id="vend" name="vend"></p>
-
-        <p><label for="total">Total</label>
-            <input type="text" id="total" name="total"></p>
-
-        <p><label for="usu">Usuario</label>
-        <input type="text" id="uso" name="uso"></p>
-
-        <p><input type="submit" value="Cadastrar"></p>
-    </form>
-
-    <h4>Lista de {{titulo}}</h4>
+    <h1>Relatório de Compras</h1>
+    
+    <table>
         <tr>
+            <th>ID</th>
             <th>Nome</th>
             <th>Descrição</th>
             <th>Quantidade</th>
             <th>Preço</th>
-            <th>Vendedor</th>
+            <th>ID da Venda</th>
             <th>Total</th>
+            <th>ID do Usuário</th>
         </tr>
-        {% for compra in compras %}
-        <tr>
-            <td>{{ compra.nome}}</td>
-            <td>{{ compra.desc }}</td>
-            <td>{{ compra.qtd }}</td>
-            <td>{{ compra.preco }}</td>
-            <td>{{ compra.ven }}</td>
-            <td>{{ compra.total }}</td>
-            
-            <td>
-                <a href="{{ url_for('compra', anuncio_id=anuncio.id) }}">Comprar</a>
-            </td>
-        </tr>
-        {% endfor %}
+        {% if compras %}
+            {% for compra in compras %}
+                <tr>
+                    <td>{{ compra.id }}</td>
+                    <td>{{ compra.nome }}</td>
+                    <td>{{ compra.desc }}</td>
+                    <td>{{ compra.qtd }}</td>
+                    <td>{{ compra.preco }}</td>
+                    <td>{{ compra.ven_id }}</td>
+                    <td>{{ compra.total_id }}</td>
+                    <td>{{ compra.usu_id }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    
+        <!-- Adiciona a nova compra ao final da tabela -->
+        {% if compra_info %}
+            <tr>
+                <td>{{ compra_info.id }}</td>
+                <td>{{ compra_info.nome }}</td>
+                <td>{{ compra_info.desc }}</td>
+                <td>{{ compra_info.qtd }}</td>
+                <td>{{ compra_info.preco }}</td>
+                <td>{{ compra_info.ven_id }}</td>
+                <td>{{ compra_info.total_id }}</td>
+                <td>{{ compra_info.usu_id }}</td>
+            </tr>
+        {% endif %}
     </table>
 </body>
 </html>
