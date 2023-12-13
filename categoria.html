@@ -1,38 +1,48 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head> 
-    <title>Sistema de Compra e Venda {{titulo}}</title>
+    <meta charset="UTF-8">
+    <title>Sistema de Compra e Venda - {{ titulo }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
 <body>
-    <h4>Cadastro de {{titulo}}</h4>
-    <form action="/categoria/criar" method="post">
-        <p><label for="nome">Nome</label>
-        <input type="text" id="nome" name="nome"></p>
+    <div class="container mt-4">
+        <h4>Cadastro de {{ titulo }}</h4>
+        <form action="/categoria/criar" method="post">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" class="form-control" id="nome" name="nome">
+            </div>
 
-        <p><label for="desc">Descricao</label>
-        <input type="text" id="desc" name="desc"></p>       
+            <div class="form-group">
+                <label for="desc">Descrição:</label>
+                <input type="text" class="form-control" id="desc" name="desc">
+            </div>
 
-        <p><input type="submit" value="Cadastrar"></p>
-    </form>
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+        </form>
 
-    <h4>Lista de {{titulo}}</h4>
-    <table>
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Descricao</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for categoria in categorias %}
+        <h4>Lista de {{ titulo }}</h4>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>{{ categoria.nome }}</td>
-                    <td>{{ categoria.desc }}</td>
+                    <th>Nome</th>
+                    <th>Descrição</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.nome }}</td>
+                        <td>{{ categoria.desc }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
 </html>
