@@ -4,70 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Anúncios</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h4 {
-            text-align: center;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        .quantity-input {
-            width: 50px;
-            padding: 5px;
-            box-sizing: border-box;
-        }
-
-        .comprar-btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #36a7c4;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .comprar-btn:hover {
-            background-color: #36a7c4;
-        }
-
-        .unit-price, .total-price {
-            text-align: right;
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container mt-4">
         <h4>Lista de Anúncios</h4>
-        <table>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#askQuestionModal">
+            Faça uma Pergunta
+        </button>
+        <table class="table">
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -84,12 +30,12 @@
                         <td>{{ anuncio.nome }}</td>
                         <td>{{ anuncio.desc }}</td>
                         <td>
-                            <input type="number" class="quantity-input" name="quantity" value="1" min="1" data-unit-price="{{ anuncio.preco }}">
+                            <input type="number" class="form-control quantity-input" name="quantity" value="1" min="1" data-unit-price="{{ anuncio.preco }}">
                         </td>
                         <td class="unit-price">{{ anuncio.preco }}</td>
                         <td class="total-price">{{ anuncio.preco }}</td>
                         <td>
-                            <a class="comprar-btn" onclick="processarCompra({{ anuncio.id }})">Comprar</a>
+                            <a class="btn btn-primary comprar-btn" onclick="processarCompra({{ anuncio.id }})">Comprar</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -97,9 +43,31 @@
         </table>
     </div>
 
-
+   
+    <div class="modal fade" id="askQuestionModal" tabindex="-1" role="dialog" aria-labelledby="askQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="askQuestionModalLabel">Faça uma Pergunta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div id="chat" style="height: 200px; overflow-y: scroll;"></div>
+                    <textarea id="questionInput" class="form-control mt-2" placeholder="Digite sua pergunta..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="enviarPergunta()">Enviar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
             $(".quantity-input").on("input", function() {
@@ -131,6 +99,18 @@
                     console.error(error);
                 }
             });
+        }
+
+        function enviarPergunta() {
+            var question = $("#questionInput").val();
+            $("#chat").append("<p><strong>Você:</strong> " + question + "</p>");
+
+            
+            
+            $("#questionInput").val("");
+
+           
+            $("#askQuestionModal").modal("hide");
         }
     </script>
 </body>
