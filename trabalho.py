@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://ingrid:1234@localhost:3306/trabalho'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://ingrid:1234@localhost:3307/trabalho1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'rel'  
 
@@ -43,6 +42,9 @@ class Anuncio(db.Model):
     preco = db.Column('anu_preco', db.Float)
     cat_id = db.Column('cat_id', db.Integer, db.ForeignKey("categoria.cat_id"))
     usu_id = db.Column('usu_id', db.Integer, db.ForeignKey("usuario.usu_id"))
+    
+
+    perguntas = db.relationship('Pergunta', backref='anuncio', lazy=True)
 
     def __init__(self, nome, desc, qtd, preco, cat_id, usu_id):
         self.nome = nome
@@ -51,6 +53,7 @@ class Anuncio(db.Model):
         self.preco = preco
         self.cat_id = cat_id
         self.usu_id = usu_id
+
 
 class Venda(db.Model):
     __tablename__ = "ven"
@@ -76,18 +79,21 @@ class Compra(db.Model):
     desc = db.Column(db.String(255))
     qtd = db.Column(db.Integer)
     preco = db.Column(db.Float)
-    ven_id = db.Column(db.Integer)  
-    total_id = db.Column(db.Float)  
-    usu_id = db.Column(db.Integer)  
-    
-    def __init__(self, nome, desc, qtd, preco, ven_id, total_id, usu_id):
+    ven_codigo = db.Column(db.String(255))  # Nova coluna para armazenar 'Venda-1'
+    total_id = db.Column(db.Float)
+    usu_id = db.Column(db.Integer)
+
+    def __init__(self, nome, desc, qtd, preco, ven_codigo, total_id, usu_id):
         self.nome = nome
         self.desc = desc
         self.qtd = qtd
         self.preco = preco
-        self.ven_id = ven_id  
-        self.total_id = total_id  
+        self.ven_codigo = ven_codigo
+        self.total_id = total_id
         self.usu_id = usu_id
+
+
+
 
 def buscar_anuncio_por_id(id):
     try:
@@ -96,6 +102,15 @@ def buscar_anuncio_por_id(id):
     except Exception as e:
         print(f"Erro ao buscar anúncio por ID {id}: {str(e)}")
         return None
+
+class Pergunta(db.Model):
+    __tablename__ = 'perguntas'
+    id = db.Column(db.Integer, primary_key=True)
+    pergunta_texto = db.Column(db.String(255))
+    resposta_texto = db.Column(db.String(255))
+    
+    
+    anuncio_id = db.Column(db.Integer, db.ForeignKey('anuncio.anu_id'), nullable=False)
 
 
 @app.errorhandler(404)
@@ -174,10 +189,16 @@ def criaranuncio():
     db.session.commit()
     return redirect(url_for('anuncio'))
 
+
 @app.route("/anuncios")
 def listar_anuncios():
     anuncios = Anuncio.query.all()
+
+    for anuncio in anuncios:
+        anuncio.perguntas = Pergunta.query.filter_by(anuncio_id=anuncio.id).all()
+
     return render_template('lista_anuncios.html', anuncios=anuncios)
+
 
 @app.route("/comprar/<int:id>", methods=['GET', 'POST'])
 def comprar_anuncio(id):
@@ -198,15 +219,16 @@ def comprar_anuncio(id):
                     print(f"Erro ao converter valores para float: {e}")
                     return redirect(url_for('index'))
 
-                ven_id = f"Venda-{id}"  
-                usu_id = 1  
+                ven_id = id 
+                ven_codigo = f"Venda-{id}" 
+                usu_id = 1
 
                 compra_info = {
                     'nome': nome,
                     'desc': desc,
                     'qtd': qtd,
                     'preco': preco,
-                    'ven_id': ven_id,
+                    'ven_codigo': ven_codigo,
                     'total_id': total_id,
                     'usu_id': usu_id
                 }
@@ -283,6 +305,42 @@ def detalhesCompra(id):
     else:
         return "Anúncio não encontrado"
 
+@app.route("/anuncio/<int:id>/perguntas", methods=['GET', 'POST'])
+def perguntas_respostas(id):
+    anuncio = buscar_anuncio_por_id(id)
+
+    if request.method == 'POST':
+        pergunta_texto = request.form.get('pergunta')
+        pergunta = Pergunta(pergunta_texto=pergunta_texto, anuncio_id=id)
+        db.session.add(pergunta)
+        db.session.commit()
+
+    perguntas = Pergunta.query.filter_by(anuncio_id=id).all()
+
+    return render_template('perguntas_respostas.html', anuncio=anuncio, perguntas=perguntas)
+
+
+@app.route("/fazer_pergunta/<int:anuncio_id>", methods=['POST'])
+def fazer_pergunta(anuncio_id):
+    pergunta_texto = request.form.get('pergunta')
+
+    pergunta = Pergunta(pergunta_texto=pergunta_texto, resposta_texto=None, anuncio_id=anuncio_id)
+    db.session.add(pergunta)
+    db.session.commit()
+
+    
+    anuncio = buscar_anuncio_por_id(anuncio_id)
+
+    
+    return render_template('lista_anuncios.html', anuncios=[anuncio])
+
+
+
+def criar_tabelas():
+    with app.app_context():
+        db.create_all()
+
+criar_tabelas()
 
 if __name__ == "__main__":
     app.run(debug=True)
