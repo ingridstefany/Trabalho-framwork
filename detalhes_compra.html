@@ -1,82 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Detalhes da Compra</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            margin-top: 30px;
-        }
-
-        h4 {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        p {
-            margin: 10px 0;
-        }
-
-        .container p {
-            font-size: 18px;
-        }
-
-        .container p:first-child {
-            font-weight: bold;
-        }
-
-        h4 {
-            background-color: #007BFF;
-            color: #fff;
-            padding: 10px;
-            margin: 0;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .container p:last-child {
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
-        }
-
-        .compras-btn {
-            background-color: #007BFF;
-            color: #fff;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .compras-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
+
 <body>
-    <div class="container">
+    <div class="container mt-4">
         <h4>Detalhes da Compra</h4>
         <p>Nome do Produto: {{ anuncio.nome }}</p>
         <p>Descrição: {{ anuncio.desc }}</p>
         <p>Quantidade: {{ anuncio.qtd }}</p>
         <p>Preço: R$ {{ anuncio.preco }}</p>
 
-<a class="compras-btn" href="{{ url_for('rel_compras', nome=anuncio.nome, desc=anuncio.desc, qtd=anuncio.qtd, preco=anuncio.preco) }}">Ver Relatório de Compras</a>
+        <a class="btn btn-primary mt-3" href="{{ url_for('rel_compras', nome=anuncio.nome, desc=anuncio.desc, qtd=anuncio.qtd, preco=anuncio.preco) }}">Ver Relatório de Compras</a>
     </div>
-</body>
-</html>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https
