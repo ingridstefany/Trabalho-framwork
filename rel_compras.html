@@ -5,90 +5,55 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Compras</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            padding: 20px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background-color: #76cccf;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Relatório de Compras</h1>
-    
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Quantidade</th>
-            <th>Preço</th>
-            <th>ID da Venda</th>
-            <th>Total</th>
-            <th>ID do Usuário</th>
-        </tr>
-        {% if compras %}
-            {% for compra in compras %}
+    <div class="container mt-5">
+        <h1>Relatório de Compras</h1>
+        
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>{{ compra.id }}</td>
-                    <td>{{ compra.nome }}</td>
-                    <td>{{ compra.desc }}</td>
-                    <td>{{ compra.qtd }}</td>
-                    <td>{{ compra.preco }}</td>
-                    <td>{{ compra.ven_id }}</td>
-                    <td>{{ compra.total_id }}</td>
-                    <td>{{ compra.usu_id }}</td>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Quantidade</th>
+                    <th>Preço</th>
+                    <th>ID da Venda</th>
+                    <th>Total</th>
+                    <th>ID do Usuário</th>
                 </tr>
-            {% endfor %}
-        {% endif %}
-    
-
-        {% if compra_info %}
-            <tr>
-                <td>{{ compra_info.id }}</td>
-                <td>{{ compra_info.nome }}</td>
-                <td>{{ compra_info.desc }}</td>
-                <td>{{ compra_info.qtd }}</td>
-                <td>{{ compra_info.preco }}</td>
-                <td>{{ compra_info.ven_id }}</td>
-                <td>{{ compra_info.total_id }}</td>
-                <td>{{ compra_info.usu_id }}</td>
-            </tr>
-        {% endif %}
-    </table>
+            </thead>
+            <tbody>
+                {% if compras %}
+                    {% for compra in compras %}
+                        <tr>
+                            <td>{{ compra.id }}</td>
+                            <td>{{ compra.nome }}</td>
+                            <td>{{ compra.desc }}</td>
+                            <td>{{ compra.qtd }}</td>
+                            <td>{{ compra.preco }}</td>
+                            <td>{{ compra.ven_id }}</td>
+                            <td>{{ compra.total_id }}</td>
+                            <td>{{ compra.usu_id }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            
+                {% if compra_info %}
+                    <tr>
+                        <td>{{ compra_info.id }}</td>
+                        <td>{{ compra_info.nome }}</td>
+                        <td>{{ compra_info.desc }}</td>
+                        <td>{{ compra_info.qtd }}</td>
+                        <td>{{ compra_info.preco }}</td>
+                        <td>{{ compra_info.ven_id }}</td>
+                        <td>{{ compra_info.total_id }}</td>
+                        <td>{{ compra_info.usu_id }}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
