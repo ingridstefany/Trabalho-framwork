@@ -1,61 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head> 
     <meta charset="UTF-8">
     <title>Sistema de Compra e Venda</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-
-        h4 {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007BFF;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            margin-top: 30px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container mt-4">
         <h4>Bem-vindo ao Sistema de Compra e Venda</h4>
-        <ul>
-            <li><a href="{{ url_for('usuario') }}">Cadastro de Usuário</a></li>
-            <li><a href="{{ url_for('anuncio') }}">Cadastro de Anúncio</a></li>
-            <li><a href="{{ url_for('categoria') }}">Configuração de Categoria</a></li>
-            <li><a href="{{ url_for('listar_anuncios') }}">Anuncios</a></li>
-            <li><a href="{{ url_for('rel_compras') }}">Relatório de Compras</a></li>
+        <ul class="list-group">
+            <li class="list-group-item"><a class="text-dark" href="{{ url_for('usuario') }}">Cadastro de Usuário</a></li>
+            <li class="list-group-item"><a class="text-dark" href="{{ url_for('categoria') }}">Cadastrar Categoria</a></li>
+            <li class="list-group-item"><a class="text-dark" href="{{ url_for('anuncio') }}">Cadastro de Anúncio</a></li>
+            <li class="list-group-item"><a class="text-dark" href="{{ url_for('listar_anuncios') }}">Anuncios</a></li>
+            <li class="list-group-item"><a class="text-dark" href="{{ url_for('rel_compras') }}">Relatório de Compras</a></li>
         </ul>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
